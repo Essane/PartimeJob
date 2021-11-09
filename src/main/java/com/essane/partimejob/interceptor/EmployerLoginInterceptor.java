@@ -10,7 +10,7 @@ import javax.servlet.http.HttpSession;
 /**
  * 雇主登录蓝机器
  *
- * @author by yuu
+ * @author by Essane
  * @Classname EmployerLoginInterceptor
  * @Date 2019/10/15 21:50
  * @see com.essane.partimejob.interceptor

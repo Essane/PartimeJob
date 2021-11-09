@@ -1,36 +1,38 @@
 package com.essane.partimejob.domain;
 
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
-import javax.persistence.Column;
-import javax.persistence.Id;
-import javax.persistence.Table;
 import java.io.Serializable;
 import java.util.Date;
 
+/**
+ * @author Essane
+ */
 @Data
-@Table(name = "home_bower")
+@TableName("home_bower")
 public class HomeBower implements Serializable {
     private static final long serialVersionUID = 1L;
     /**
      * 主页浏览表
      */
-    @Id
-    @Column(name = "id")
+    @TableId
     private Long id;
     /**
      * 雇员ID
      */
-    @Column(name = "employee_id")
+    @TableField("employee_id")
     private Long employeeId;
     /**
      * 雇主ID
      */
-    @Column(name = "employer_id")
+    @TableField("employer_id")
     private Long employerId;
     /**
      * 浏览时间
      */
-    @Column(name = "create_time")
+    @TableField("create_time")
     private Date createTime;
 }

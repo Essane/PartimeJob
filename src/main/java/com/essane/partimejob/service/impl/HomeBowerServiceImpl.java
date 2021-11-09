@@ -1,16 +1,16 @@
 package com.essane.partimejob.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.essane.partimejob.domain.Employer;
 import com.essane.partimejob.domain.HomeBower;
 import com.essane.partimejob.mapper.EmployerMapper;
 import com.essane.partimejob.mapper.HomeBowerMapper;
 import com.essane.partimejob.service.HomeBowerService;
 import com.essane.partimejob.vo.HomeBowerVo;
-import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
-import tk.mybatis.mapper.entity.Example;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
@@ -18,27 +18,22 @@ import java.util.List;
 
 /**
  * 首页业务逻辑接口实现
+ *
+ * @author Essane
  */
 @Service
-public class HomeBowerServiceImpl implements HomeBowerService {
-
-    @Resource
-    private HomeBowerMapper homeBowerMapper;
-
+public class HomeBowerServiceImpl extends ServiceImpl<HomeBowerMapper, HomeBower> implements HomeBowerService {
     @Resource
     private EmployerMapper employerMapper;
 
     @Override
     public List<HomeBowerVo> getByRecentlyEmployeeId(Long id) {
-        // 获取最近 10 条浏览情况
-        PageHelper.startPage(1, 10);
-
         // 构造查询条件
-        Example example = new Example(HomeBower.class);
-        example.createCriteria().andEqualTo("employeeId", id);
+        QueryWrapper<HomeBower> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("employee_id", id);
         // 分页查询
-        PageInfo<HomeBower> pageInfo = new PageInfo<>(homeBowerMapper.selectByExample(example));
-        List<HomeBower> homeBowers = pageInfo.getList();
+        // 获取最近 10 条浏览情况
+        List<HomeBower> homeBowers = getBaseMapper().selectPage(new Page<>(1, 10), queryWrapper).getRecords();
 
         // 将 HomeBower 转换为 HomeBowerVo 视图展示对象
         List<HomeBowerVo> homeBowerVos = new ArrayList<>();
@@ -48,12 +43,11 @@ public class HomeBowerServiceImpl implements HomeBowerService {
             // 相同的属性进行复制
             BeanUtils.copyProperties(homeBower, homeBowerVo);
             // 查询雇主信息
-            Employer employer = employerMapper.selectByPrimaryKey(homeBower.getEmployerId());
+            Employer employer = employerMapper.selectById(homeBower.getEmployerId());
             homeBowerVo.setEmployer(employer);
             // 添加到集合中
             homeBowerVos.add(homeBowerVo);
         }
-
         return homeBowerVos;
     }
 }

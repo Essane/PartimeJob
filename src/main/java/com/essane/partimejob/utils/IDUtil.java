@@ -3,7 +3,7 @@ package com.essane.partimejob.utils;
 import java.util.Random;
 
 /**
- * @author by yuu
+ * @author by Essane
  * @Classname IDUtil
  * @Date 2019/10/14 8:42
  * @see com.essane.partimejob.utils

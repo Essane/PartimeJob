@@ -1,96 +1,98 @@
 package com.essane.partimejob.domain;
 
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
-import javax.persistence.Column;
-import javax.persistence.Id;
-import javax.persistence.Table;
 import java.io.Serializable;
 import java.util.Date;
 
+/**
+ * @author Essane
+ */
 @Data
-@Table(name = "task")
+@TableName("task")
 public class Task implements Serializable {
     private static final long serialVersionUID = 1L;
     /**
      * 任务ID
      */
-    @Id
-    @Column(name = "id")
+    @TableId
     private Long id;
     /**
      * 任务分类ID
      */
-    @Column(name = "category_id")
+    @TableField("category_id")
     private Long categoryId;
     /**
      * 任务发布雇主ID
      */
-    @Column(name = "employer_id")
+    @TableField("employer_id")
     private Long employerId;
     /**
      * 任务标题
      */
-    @Column(name = "task_title")
+    @TableField("task_title")
     private String taskTitle;
     /**
      * 任务简介
      */
-    @Column(name = "task_profile")
+    @TableField("task_profile")
     private String taskProfile;
     /**
      * 任务描述
      */
-    @Column(name = "task_desc")
+    @TableField("task_desc")
     private String taskDesc;
     /**
      * 最低预算价格
      */
-    @Column(name = "fees_low")
+    @TableField("fees_low")
     private Double feesLow;
     /**
      * 最高预算价格
      */
-    @Column(name = "fees_high")
+    @TableField("fees_high")
     private Double feesHigh;
     /**
      * 任务附件地址
      */
-    @Column(name = "fees_file")
+    @TableField("fees_file")
     private String feesFile;
     /**
      * 附件文件名称
      */
-    @Column(name = "filename")
+    @TableField("filename")
     private String filename;
     /**
      * 完成任务雇员ID
      */
-    @Column(name = "employee_id")
+    @TableField("employee_id")
     private Long employeeId;
     /**
      * 任务成交价格
      */
-    @Column(name = "task_price")
+    @TableField("task_price")
     private Double taskPrice;
     /**
      * 任务状态
      */
-    @Column(name = "task_status")
+    @TableField("task_status")
     private Byte taskStatus;
     /**
      * 成交时间
      */
-    @Column(name = "close_time")
+    @TableField("close_time")
     private Date closeTime;
     /**
      * 中标时间
      */
-    @Column(name = "bid_time")
+    @TableField("bid_time")
     private Date bidTime;
     /**
      * 创建时间
      */
-    @Column(name = "create_time")
+    @TableField("create_time")
     private Date createTime;
 }

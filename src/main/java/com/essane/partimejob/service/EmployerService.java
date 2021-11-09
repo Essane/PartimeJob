@@ -1,13 +1,15 @@
 package com.essane.partimejob.service;
 
+import com.baomidou.mybatisplus.extension.service.IService;
 import com.essane.partimejob.domain.Employer;
 
 import java.util.List;
 
 /**
  * 雇主业务逻辑接口
+ * @author Essane
  */
-public interface EmployerService {
+public interface EmployerService extends IService<Employer> {
 
     /**
      * 获取雇主总数
@@ -15,13 +17,6 @@ public interface EmployerService {
      * @return
      */
     Integer getAllCount();
-
-    /**
-     * 获取所有雇主
-     *
-     * @return
-     */
-    List<Employer> getAll();
 
     /**
      * 根据用户名获取雇主信息
@@ -62,14 +57,6 @@ public interface EmployerService {
      * @param skillId
      */
     void deleteSkill(Long skillId);
-
-    /**
-     * 保存个人基本信息
-     *
-     * @param employer
-     * @return
-     */
-    Employer save(Employer employer);
 
     /**
      * 修改密码

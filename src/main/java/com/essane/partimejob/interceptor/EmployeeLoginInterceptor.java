@@ -11,7 +11,7 @@ import javax.servlet.http.HttpSession;
 /**
  * 系统登录拦截器
  *
- * @author by yuu
+ * @author by Essane
  * @Classname LoginInceptor
  * @Date 2019/10/14 23:45
  * @see com.essane.partimejob.interceptor

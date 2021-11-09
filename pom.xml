@@ -74,18 +74,14 @@
         </dependency>
         <!-- Druid End -->
 
-        <!-- tk.mybatis Begin -->
+        <!-- mybatis plus Begin -->
+
         <dependency>
-            <groupId>tk.mybatis</groupId>
-            <artifactId>mapper-spring-boot-starter</artifactId>
-            <version>${mapper.version}</version>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-boot-starter</artifactId>
+            <version>3.4.3.4</version>
         </dependency>
-<!--        <dependency>-->
-<!--            <groupId>com.baomidou</groupId>-->
-<!--            <artifactId>mybatis-plus-boot-starter</artifactId>-->
-<!--            <version>3.4.3.4</version>-->
-<!--        </dependency>-->
-        <!-- tk.mybatis End -->
+        <!-- mybatis plus End -->
 
         <!-- Lombok Begin -->
         <dependency>
@@ -96,21 +92,11 @@
         <!-- Lombok End -->
 
         <!-- PageHelper Helper -->
-        <dependency>
-            <groupId>com.github.pagehelper</groupId>
-            <artifactId>pagehelper-spring-boot-starter</artifactId>
-            <version>${pagehelper.version}</version>
-<!--            <exclusions>-->
-<!--                <exclusion>-->
-<!--                    <groupId>org.mybatis</groupId>-->
-<!--                    <artifactId>mybatis</artifactId>-->
-<!--                </exclusion>-->
-<!--                <exclusion>-->
-<!--                    <groupId>org.mybatis</groupId>-->
-<!--                    <artifactId>mybatis-spring</artifactId>-->
-<!--                </exclusion>-->
-<!--            </exclusions>-->
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>com.github.pagehelper</groupId>-->
+<!--            <artifactId>pagehelper-spring-boot-starter</artifactId>-->
+<!--            <version>${pagehelper.version}</version>-->
+<!--        </dependency>-->
         <!-- PageHelper End -->
 
         <!-- Aliyun OSS Begin -->

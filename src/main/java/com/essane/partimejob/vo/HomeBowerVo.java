@@ -9,7 +9,7 @@ import java.util.Date;
 /**
  * 雇员主页浏览视图展示对象
  *
- * @author by yuu
+ * @author by Essane
  * @Classname HomeBowerVo
  * @Date 2019/10/15 8:40
  * @see com.essane.partimejob.vo

@@ -3,7 +3,7 @@ package com.essane.partimejob.consts;
 /**
  * 任务状态常量
  *
- * @author by yuu
+ * @author by Essane
  * @Classname TaskStatus
  * @Date 2019/10/13 18:16
  * @see com.essane.partimejob.consts

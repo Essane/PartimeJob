@@ -30,7 +30,7 @@ CREATE TABLE `admin` (
 /*Data for the table `admin` */
 
 insert  into `admin`(`id`,`username`,`password`) values 
-(1,'Yuu','e10adc3949ba59abbe56e057f20f883e');
+(1,'Essane','e10adc3949ba59abbe56e057f20f883e');
 
 /*Table structure for table `bid` */
 
@@ -75,8 +75,8 @@ CREATE TABLE `employee` (
 /*Data for the table `employee` */
 
 insert  into `employee`(`id`,`username`,`password`,`email`,`phone`,`head_img`,`tagline`,`profile`,`browse_count`,`create_time`) values 
-(157124225706439,'Yuu','123','1225459207@qq.com','13055206361','http://recruit1.oss-cn-shenzhen.aliyuncs.com/dc7fa65a-ae93-4938-8f91-01f6c6e7ee4c.jpg','Good Man!','来跟妲己一起玩耍呀~',0,'2019-10-17 00:10:57'),
-(157124288026264,'Yuu2','123',NULL,NULL,'http://recruit1.oss-cn-shenzhen.aliyuncs.com/10f65b3a-e73d-4d8b-b95b-3841534ea0dc.png',NULL,NULL,27,'2019-10-17 00:21:20');
+(157124225706439,'Essane','123','1225459207@qq.com','13055206361','http://recruit1.oss-cn-shenzhen.aliyuncs.com/dc7fa65a-ae93-4938-8f91-01f6c6e7ee4c.jpg','Good Man!','来跟妲己一起玩耍呀~',0,'2019-10-17 00:10:57'),
+(157124288026264,'Essane2','123',NULL,NULL,'http://recruit1.oss-cn-shenzhen.aliyuncs.com/10f65b3a-e73d-4d8b-b95b-3841534ea0dc.png',NULL,NULL,27,'2019-10-17 00:21:20');
 
 /*Table structure for table `employee_bookmarked` */
 
@@ -134,7 +134,7 @@ CREATE TABLE `employer` (
 /*Data for the table `employer` */
 
 insert  into `employer`(`id`,`username`,`password`,`head_img`,`phone`,`email`,`create_time`) values 
-(157123889925612,'Yuu','123456','http://recruit1.oss-cn-shenzhen.aliyuncs.com/37872ab6-0460-4905-85b1-5350e09df6e4.jpg','13055206361','1225459207@qq.com','2019-10-16 23:14:59');
+(157123889925612,'Essane','123456','http://recruit1.oss-cn-shenzhen.aliyuncs.com/37872ab6-0460-4905-85b1-5350e09df6e4.jpg','13055206361','1225459207@qq.com','2019-10-16 23:14:59');
 
 /*Table structure for table `home_bower` */
 

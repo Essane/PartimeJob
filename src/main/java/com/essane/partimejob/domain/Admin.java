@@ -1,30 +1,29 @@
 package com.essane.partimejob.domain;
 
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
-import javax.persistence.Column;
-import javax.persistence.Id;
-import javax.persistence.Table;
 import java.io.Serializable;
 
+/**
+ * @author Essane
+ */
 @Data
-@Table(name = "`admin`")
+@TableName("admin")
 public class Admin implements Serializable {
     private static final long serialVersionUID = 1L;
     /**
      * 管理员ID
      */
-    @Id
-    @Column(name = "id")
+    @TableId
     private Long id;
     /**
      * 用户名
      */
-    @Column(name = "username")
     private String username;
     /**
      * 密码
      */
-    @Column(name = "`password`")
     private String password;
 }

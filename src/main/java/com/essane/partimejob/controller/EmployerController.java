@@ -23,7 +23,7 @@ import java.util.List;
 /**
  * 雇主控制器
  *
- * @author by yuu
+ * @author by Essane
  * @Classname EmployerController
  * @Date 2019/10/15 21:30
  * @see com.essane.partimejob.controller
@@ -277,8 +277,8 @@ public class EmployerController {
     @PostMapping("settings/base/save")
     public String saveBase(Employer employer, HttpSession session) {
         // 更新个人信息到数据库
-        Employer currEmployer = employerService.save(employer);
-
+        employerService.save(employer);
+        Employer currEmployer = employerService.getById(employer);
         // 更新 session 中的个人信息
         session.setAttribute("employer", currEmployer);
         return "redirect:/employer/settings/base";

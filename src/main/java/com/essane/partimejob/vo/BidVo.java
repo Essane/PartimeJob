@@ -10,7 +10,7 @@ import java.util.Date;
 /**
  * 任务投标视图展示对象
  *
- * @author by yuu
+ * @author by Essane
  * @Classname BidVo
  * @Date 2019/10/14 22:46
  * @see com.essane.partimejob.vo

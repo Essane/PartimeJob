@@ -21,7 +21,7 @@ import java.util.List;
 /**
  * 管理员控制器
  *
- * @author by yuu
+ * @author by Essane
  * @Classname AdminController
  * @Date 2019/10/13 16:26
  * @see com.essane.partimejob.controller

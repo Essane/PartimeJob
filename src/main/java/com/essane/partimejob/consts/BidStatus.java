@@ -1,7 +1,7 @@
 package com.essane.partimejob.consts;
 
 /**
- * @author by yuu
+ * @author by Essane
  * @Classname BidStatus
  * @Date 2019/10/15 14:43
  * @see com.essane.partimejob.consts

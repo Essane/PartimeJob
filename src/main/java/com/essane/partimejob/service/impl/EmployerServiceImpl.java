@@ -1,5 +1,7 @@
 package com.essane.partimejob.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.essane.partimejob.domain.Employer;
 import com.essane.partimejob.domain.TaskSkill;
 import com.essane.partimejob.mapper.EmployerMapper;
@@ -7,7 +9,6 @@ import com.essane.partimejob.mapper.TaskSkillMapper;
 import com.essane.partimejob.service.EmployerService;
 import com.essane.partimejob.utils.IDUtil;
 import org.springframework.stereotype.Service;
-import tk.mybatis.mapper.entity.Example;
 
 import javax.annotation.Resource;
 import java.util.Date;
@@ -15,9 +16,11 @@ import java.util.List;
 
 /**
  * 雇主业务逻辑实现
+ *
+ * @author Essane
  */
 @Service
-public class EmployerServiceImpl implements EmployerService {
+public class EmployerServiceImpl extends ServiceImpl<EmployerMapper, Employer> implements EmployerService {
 
     @Resource
     private EmployerMapper employerMapper;
@@ -28,25 +31,20 @@ public class EmployerServiceImpl implements EmployerService {
     @Override
     public Integer getAllCount() {
         // 调用 employerMapper 查询所有雇主数据
-        List<Employer> employers = employerMapper.selectAll();
+        List<Employer> employers = list();
         // 三元表达式返回总数，如果 employers 不为空返回集合的数据，为空返回 0
         return employers != null ? employers.size() : 0;
     }
 
-    @Override
-    public List<Employer> getAll() {
-        return employerMapper.selectAll();
-    }
 
     @Override
     public Employer getByUsername(String username) {
         // 构造查询条件
-        Example example = new Example(Employer.class);
         // 根据用户名查询
-        example.createCriteria().andEqualTo("username", username);
+        QueryWrapper<Employer> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("username", username);
         // 执行查询
-        Employer employer = employerMapper.selectOneByExample(example);
-        return employer;
+        return getOne(queryWrapper);
     }
 
     @Override
@@ -91,34 +89,21 @@ public class EmployerServiceImpl implements EmployerService {
 
     @Override
     public void deleteSkill(Long skillId) {
-        taskSkillMapper.deleteByPrimaryKey(skillId);
+        removeById(skillId);
     }
 
-    @Override
-    public Employer save(Employer employer) {
-        // 更新
-        employerMapper.updateByPrimaryKeySelective(employer);
-
-        // 重新查询雇主信息
-        Employer currEmployer = employerMapper.selectByPrimaryKey(employer.getId());
-        return currEmployer;
-    }
 
     @Override
     public String updatePass(Long employerId, String password, String newPassword) {
         // 根据主键查询雇员ID信息
-        Employer employer = employerMapper.selectByPrimaryKey(employerId);
-
+        Employer employer = getById(employerId);
         // 更新密码
         if (employer != null && employer.getPassword().equals(password)) {
             employer.setPassword(newPassword);
-            employerMapper.updateByPrimaryKey(employer);
+            updateById(employer);
             return "修改密码成功";
-
-        }
-
-        // 旧密码错误
-        else {
+        } else {
+            // 旧密码错误
             return "旧密码输入错误";
         }
     }

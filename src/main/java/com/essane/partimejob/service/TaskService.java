@@ -1,5 +1,6 @@
 package com.essane.partimejob.service;
 
+import com.baomidou.mybatisplus.extension.service.IService;
 import com.essane.partimejob.domain.Task;
 import com.essane.partimejob.result.PageResult;
 import com.essane.partimejob.vo.TaskVo;
@@ -9,7 +10,7 @@ import java.util.List;
 /**
  * 任务业务逻辑接口
  */
-public interface TaskService {
+public interface TaskService extends IService<Task> {
 
     /**
      * 获取所有任务完成数量

@@ -1,5 +1,7 @@
 package com.essane.partimejob.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.essane.partimejob.domain.EmployeeBookmarked;
 import com.essane.partimejob.mapper.EmployeeBookmarkedMapper;
 import com.essane.partimejob.service.EmployeeBookmarkedService;
@@ -8,7 +10,6 @@ import com.essane.partimejob.utils.IDUtil;
 import com.essane.partimejob.vo.EmployeeBookmarkedVo;
 import com.essane.partimejob.vo.TaskVo;
 import org.springframework.stereotype.Service;
-import tk.mybatis.mapper.entity.Example;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
@@ -16,9 +17,11 @@ import java.util.List;
 
 /**
  * 雇员收藏业务逻辑接口实现
+ *
+ * @author Essane
  */
 @Service
-public class EmployeeBookmarkedServiceImpl implements EmployeeBookmarkedService {
+public class EmployeeBookmarkedServiceImpl extends ServiceImpl<EmployeeBookmarkedMapper, EmployeeBookmarked> implements EmployeeBookmarkedService {
 
     @Resource
     private EmployeeBookmarkedMapper employeeBookmarkedMapper;
@@ -29,14 +32,14 @@ public class EmployeeBookmarkedServiceImpl implements EmployeeBookmarkedService 
     @Override
     public EmployeeBookmarked bookmarked(Long id, Long taskId) {
         // 先根据雇员ID和任务ID获取收藏情况
-        Example example = new Example(EmployeeBookmarked.class);
-        example.createCriteria().andEqualTo("employeeId", id)
-                .andEqualTo("taskId", taskId);
-        EmployeeBookmarked employeeBookmarked = employeeBookmarkedMapper.selectOneByExample(example);
+        QueryWrapper<EmployeeBookmarked> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("employee_id", id)
+                .eq("task_id", taskId);
+        EmployeeBookmarked employeeBookmarked = getOne(queryWrapper);
 
         // 如果查询到了说明雇员已经收藏该任务，取消收藏,删除该条记录
         if (employeeBookmarked != null) {
-            employeeBookmarkedMapper.deleteByExample(example);
+            remove(queryWrapper);
         }
 
         // 如果没有查询到，说明雇员没有收藏该任务，添加一条收藏记录
@@ -53,9 +56,7 @@ public class EmployeeBookmarkedServiceImpl implements EmployeeBookmarkedService 
 
     @Override
     public List<EmployeeBookmarkedVo> getByEmployeeId(Long employeeId) {
-        Example example = new Example(EmployeeBookmarked.class);
-        example.createCriteria().andEqualTo("employeeId", employeeId);
-        List<EmployeeBookmarked> employeeBookmarkeds = employeeBookmarkedMapper.selectByExample(example);
+        List<EmployeeBookmarked> employeeBookmarkeds = list(new QueryWrapper<EmployeeBookmarked>().eq("employee_id", employeeId));
         // 转换为视图展示对象
         List<EmployeeBookmarkedVo> employeeBookmarkedVos = new ArrayList<>();
         for (EmployeeBookmarked employeeBookmarked : employeeBookmarkeds) {
@@ -74,12 +75,10 @@ public class EmployeeBookmarkedServiceImpl implements EmployeeBookmarkedService 
 
     @Override
     public List<Long> getIdsByEmployeeId(Long employeeId) {
-        Example example = new Example(EmployeeBookmarked.class);
-        example.createCriteria().andEqualTo("employeeId", employeeId);
-        List<EmployeeBookmarked> employeeBookmarkeds = employeeBookmarkedMapper.selectByExample(example);
+        List<EmployeeBookmarked> employeeBookmarkeds = list(new QueryWrapper<EmployeeBookmarked>().eq("employee_id", employeeId));
         List<Long> ids = new ArrayList<>();
         for (EmployeeBookmarked employeeBookmarked : employeeBookmarkeds) {
-            Long aLong = new Long(employeeBookmarked.getTaskId());
+            Long aLong = employeeBookmarked.getTaskId();
             ids.add(aLong);
         }
         return ids;
@@ -88,10 +87,10 @@ public class EmployeeBookmarkedServiceImpl implements EmployeeBookmarkedService 
     @Override
     public void remove(Long id, Long taskId) {
         // 构造查询条件
-        Example example = new Example(EmployeeBookmarked.class);
-        example.createCriteria().andEqualTo("employeeId", id)
-                .andEqualTo("taskId", taskId);
+        QueryWrapper<EmployeeBookmarked> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("employee_id", id)
+                .eq("task_id", taskId);
         // 删除收藏
-        employeeBookmarkedMapper.deleteByExample(example);
+        remove(queryWrapper);
     }
 }

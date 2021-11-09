@@ -13,7 +13,7 @@ import java.util.List;
 /**
  * 任务页面展示对象
  *
- * @author by yuu
+ * @author by Essane
  * @Classname TaskVo
  * @Date 2019/10/13 20:19
  * @see com.essane.partimejob.vo

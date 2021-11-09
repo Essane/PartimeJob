@@ -20,7 +20,7 @@ import java.util.List;
 /**
  * 雇员控制器
  *
- * @author by yuu
+ * @author by Essane
  * @Classname EmployeeController
  * @Date 2019/10/15 0:36
  * @see com.essane.partimejob.controller
@@ -243,7 +243,7 @@ public class EmployeeController {
         Employee employee = (Employee) session.getAttribute("employee");
 
         // 获取视图展示对象，主要是为了展示技能信息，因为 Employee 中只有 技能 ID 没有技能名称
-        EmployeeVo employeeVo = employeeService.getById(employee.getId());
+        EmployeeVo employeeVo = employeeService.getVoById(employee.getId());
 
         model.addAttribute("employee", employeeVo);
         return "employee/settings_base";
@@ -258,8 +258,8 @@ public class EmployeeController {
     @PostMapping("settings/base/save")
     public String saveBase(Employee employee, HttpSession session) {
         // 更新个人信息到数据库
-        Employee currEmployee = employeeService.save(employee);
-
+        employeeService.saveOrUpdate(employee);
+        EmployeeVo currEmployee = employeeService.getVoById(employee.getId());
         // 更新 session 中的个人信息
         session.setAttribute("employee", currEmployee);
         return "redirect:/employee/settings/base";
@@ -299,7 +299,7 @@ public class EmployeeController {
     @GetMapping("profile")
     public String profile(Long employeeId, Model model, HttpSession session) {
         // 查询雇员信息
-        EmployeeVo employee = employeeService.getById(employeeId);
+        EmployeeVo employee = employeeService.getVoById(employeeId);
 
         // 查询历史完成任务
         List<TaskVo> taskVos = taskService.getByEmployeeId(employeeId);

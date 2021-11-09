@@ -19,7 +19,7 @@ import java.util.Date;
 /**
  * 雇员投标控制器
  *
- * @author by yuu
+ * @author by Essane
  * @Classname EmployeeBidController
  * @Date 2019/10/14 23:57
  * @see com.essane.partimejob.controller

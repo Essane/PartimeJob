@@ -1,5 +1,6 @@
 package com.essane.partimejob.service;
 
+import com.baomidou.mybatisplus.extension.service.IService;
 import com.essane.partimejob.domain.Bid;
 import com.essane.partimejob.vo.BidVo;
 
@@ -7,8 +8,9 @@ import java.util.List;
 
 /**
  * 雇员投标业务逻辑接口
+ * @author Essane
  */
-public interface BidService {
+public interface BidService extends IService<Bid> {
 
 
     /**

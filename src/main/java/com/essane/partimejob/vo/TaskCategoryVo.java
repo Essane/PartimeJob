@@ -7,7 +7,7 @@ import java.io.Serializable;
 /**
  * 任务分类页面展示对象
  *
- * @author by yuu
+ * @author by Essane
  * @Classname TaskCategoryVo
  * @Date 2019/10/13 21:28
  * @see com.essane.partimejob.vo

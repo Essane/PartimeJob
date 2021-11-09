@@ -16,7 +16,7 @@ import java.util.List;
 /**
  * 管理员管理任务分类控制器
  *
- * @author by yuu
+ * @author by Essane
  * @Classname AdminTaskCategoryController
  * @Date 2019/10/13 21:10
  * @see com.essane.partimejob.controller
@@ -69,7 +69,7 @@ public class AdminTaskCategoryController {
     @PostMapping("save")
     public String save(TaskCategory taskCategory) {
         // 保存任务分类信息
-        taskCategoryService.save(taskCategory);
+        taskCategoryService.saveTaskCategory(taskCategory);
         // 保存完，重定向到任务分类列表页
         return "redirect:/admin/task/category";
     }
@@ -108,7 +108,7 @@ public class AdminTaskCategoryController {
      */
     @GetMapping("delete/{id}")
     public String delete(@PathVariable Long id) {
-        taskCategoryService.delete(id);
+        taskCategoryService.removeById(id);
         return "redirect:/admin/task/category";
     }
 

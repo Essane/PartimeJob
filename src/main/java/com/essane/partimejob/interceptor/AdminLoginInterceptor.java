@@ -10,7 +10,7 @@ import javax.servlet.http.HttpSession;
 /**
  * 管理员登录拦截器，需要登录了才登录访问首页、列表页....
  *
- * @author by yuu
+ * @author by Essane
  * @Classname AdminLoginInceptor
  * @Date 2019/10/14 12:15
  * @see com.essane.partimejob.interceptor

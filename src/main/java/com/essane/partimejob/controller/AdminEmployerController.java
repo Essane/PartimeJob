@@ -13,7 +13,7 @@ import java.util.List;
 /**
  * 管理员雇主管理控制器
  *
- * @author by yuu
+ * @author by Essane
  * @Classname AdminEmployerController
  * @Date 2019/10/14 9:35
  * @see com.essane.partimejob.controller
@@ -33,7 +33,7 @@ public class AdminEmployerController {
     @GetMapping("")
     public String taskCategory(Model model) {
         // 查询所有雇主
-        List<Employer> employers = employerService.getAll();
+        List<Employer> employers = employerService.list();
 
         // 设置到域对象中，提供给页面展示
         model.addAttribute("employers", employers);

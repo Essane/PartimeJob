@@ -8,7 +8,7 @@ import java.util.List;
 /**
  * 分页结果返回对象
  *
- * @author by yuu
+ * @author by Essane
  * @Classname PageResult
  * @Date 2019/10/14 19:50
  * @see com.essane.partimejob.result
@@ -29,10 +29,10 @@ public class PageResult<T> implements Serializable {
     /**
      * 总数据条数
      */
-    private int total;
+    private Long total;
 
     /**
      * 总页数
      */
-    private int pageTotal;
+    private Long pageTotal;
 }

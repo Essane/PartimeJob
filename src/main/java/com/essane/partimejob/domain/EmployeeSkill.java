@@ -1,30 +1,32 @@
 package com.essane.partimejob.domain;
 
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
-import javax.persistence.Column;
-import javax.persistence.Id;
-import javax.persistence.Table;
 import java.io.Serializable;
 
+/**
+ * @author Essane
+ */
 @Data
-@Table(name = "employee_skill")
+@TableName("employee_skill")
 public class EmployeeSkill implements Serializable {
     private static final long serialVersionUID = 1L;
     /**
      * 雇员技能对应ID
      */
-    @Id
-    @Column(name = "id")
+    @TableId
     private Long id;
     /**
      * 雇员ID
      */
-    @Column(name = "employee_id")
+    @TableField("employee_id")
     private Long employeeId;
     /**
      * 技能名称
      */
-    @Column(name = "skill_name")
+    @TableField("skill_name")
     private String skillName;
 }

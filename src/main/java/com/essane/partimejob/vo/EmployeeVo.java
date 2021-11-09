@@ -1,9 +1,9 @@
 package com.essane.partimejob.vo;
 
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.essane.partimejob.domain.EmployeeSkill;
 import lombok.Data;
 
-import javax.persistence.Id;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
@@ -11,7 +11,7 @@ import java.util.List;
 /**
  * 雇员视图展示对象
  *
- * @author by yuu
+ * @author by Essane
  * @Classname EmployeeVo
  * @Date 2019/10/16 1:03
  * @see com.essane.partimejob.vo
@@ -21,7 +21,7 @@ public class EmployeeVo implements Serializable {
     /**
      * 雇员ID
      */
-    @Id
+    @TableId
     private Long id;
 
     /**

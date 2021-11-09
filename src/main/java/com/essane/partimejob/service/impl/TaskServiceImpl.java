@@ -2,6 +2,9 @@ package com.essane.partimejob.service.impl;
 
 import cn.hutool.core.date.DateUnit;
 import cn.hutool.core.date.DateUtil;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.essane.partimejob.consts.TaskStatus;
 import com.essane.partimejob.domain.*;
 import com.essane.partimejob.mapper.*;
@@ -10,22 +13,23 @@ import com.essane.partimejob.service.TaskService;
 import com.essane.partimejob.utils.IDUtil;
 import com.essane.partimejob.vo.BidVo;
 import com.essane.partimejob.vo.TaskVo;
-import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
-import tk.mybatis.mapper.entity.Example;
 
 import javax.annotation.Resource;
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 任务业务逻辑实现
+ *
+ * @author Essane
  */
 @Service
-public class TaskServiceImpl implements TaskService {
+public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements TaskService {
 
     @Resource
     private TaskMapper taskMapper;
@@ -48,20 +52,17 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public Integer getAllCompleteCount() {
         // 构建查询条件,Task.class 是要查询那个实体类 当前查询的是 Task 任务实体类，所以是 Task.class
-        Example example = new Example(Task.class);
+        QueryWrapper<Task> queryWrapper = new QueryWrapper<>();
         // 构建查询条件，需要找出已经成交的任务，也就是 Task 的状态为 2 TaskStatus 是定义的一个状态常量类
-        example.createCriteria().andEqualTo("taskStatus", TaskStatus.COMPLETE);
+        queryWrapper.eq("task_status", TaskStatus.COMPLETE);
         // 根据条件查询
-        List<Task> tasks = taskMapper.selectByExample(example);
+        List<Task> tasks = list(queryWrapper);
         return tasks != null ? tasks.size() : 0;
     }
 
     @Override
     public Double getAllCompletePrice() {
-        Example example = new Example(Task.class);
-        example.createCriteria().andEqualTo("taskStatus", TaskStatus.COMPLETE);
-        List<Task> tasks = taskMapper.selectByExample(example);
-
+        List<Task> tasks = list(new QueryWrapper<Task>().eq("task_status", TaskStatus.COMPLETE));
         // 循环遍历查询出来的完成任务，计算价格
         Double allCompletePrice = 0.0;
         for (Task task : tasks) {
@@ -73,41 +74,30 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public List<TaskVo> getRecentlyComplete() {
-        // 设置分页查询条件
-        PageHelper.startPage(0, 10);
-
         // 构建查询条件,查询任务状态为 3 的任务
-        Example example = new Example(Task.class);
-        example.createCriteria().andEqualTo("taskStatus", TaskStatus.COMPLETE);
-        example.orderBy("createTime").desc();
-        PageInfo<Task> taskPageInfo = new PageInfo<>(taskMapper.selectByExample(example));
-
+        QueryWrapper<Task> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("task_status", TaskStatus.COMPLETE);
+        queryWrapper.orderByDesc("create_time");
         // 获取查询结果
-        List<Task> tasks = taskPageInfo.getList();
-
+        List<Task> tasks = getBaseMapper().selectPage(new Page<>(0, 10), queryWrapper).getRecords();
         // Task 转换为 TaskVo 视图展示类
-        List<TaskVo> taskVos = tasksToTaskVos(tasks);
-
-        return taskVos;
+        return tasksToTaskVos(tasks);
     }
 
     @Override
     public List<TaskVo> getAll() {
         // 查询出所有任务
-        List<Task> tasks = taskMapper.selectAll();
-
+        List<Task> tasks = list();
         // 将 Task 转换为 TaskVo
-        List<TaskVo> taskVos = tasksToTaskVos(tasks);
-
-        return taskVos;
+        return tasksToTaskVos(tasks);
     }
 
     @Override
     public Integer getAllCount() {
         // 查询出所有任务
-        Example example = new Example(Task.class);
-        example.or().andNotEqualTo("taskStatus", TaskStatus.UNCHECK).andNotEqualTo("taskStatus", TaskStatus.CHECK_FAIL);
-        List<Task> tasks = taskMapper.selectByExample(example);
+        QueryWrapper<Task> queryWrapper = new QueryWrapper<>();
+        queryWrapper.ne("task_status", TaskStatus.UNCHECK).ne("task_status", TaskStatus.CHECK_FAIL);
+        List<Task> tasks = list(queryWrapper);
         // 三元表达式返回任务总数，如果任务集合不为空，则返回集合大小也就是任务总数，如果任务集合是空的，则返回 0
         return tasks != null ? tasks.size() : 0;
     }
@@ -115,51 +105,41 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public List<TaskVo> getRecently() {
         // 设置分页查询条件，第一个条件是第几页，因为只查 5 条，所以是 0 ，代表第 0 页，5 是要查询的条数
-        PageHelper.startPage(1, 5);
-
         // 构建查询条件,查询任务状态为 0 的任务，0 代表还未中标的任务
-        Example example = new Example(Task.class);
-        example.createCriteria().orEqualTo("taskStatus", TaskStatus.NO_BIT);
+        QueryWrapper<Task> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("task_status", TaskStatus.NO_BIT);
         // 根据创建时间，倒叙查询
-        example.orderBy("createTime").desc();
+        queryWrapper.orderByDesc("create_time");
         // 分页查询，查询出前 5 条
-        PageInfo<Task> taskPageInfo = new PageInfo<>(taskMapper.selectByExample(example));
-
-        // 获取查询结果
-        List<Task> tasks = taskPageInfo.getList();
-
+        List<Task> tasks = getBaseMapper().selectPage(new Page<>(0, 5), queryWrapper).getRecords();
         // Task 转换为 TaskVo 视图展示类
-        List<TaskVo> taskVos = tasksToTaskVos(tasks);
-
-        return taskVos;
+        return tasksToTaskVos(tasks);
     }
 
     @Override
     public PageResult<TaskVo> page(Long categoryId, String key, int page) {
         // 使用 PageHelper 进行分页,两个参数，第一个 page 代表查询第几页，pageSize，代表每页查询的条数，默认 10 条
         int pageSize = 10;
-        PageHelper.startPage(page, pageSize);
+        Page<Task> taskPage = new Page<>(page, pageSize);
 
         // 构建查询条件，根据分类ID和搜索条件查询
-        Example example = new Example(Task.class);
-        Example.Criteria criteria = example.createCriteria();
-        criteria.andEqualTo("taskStatus", TaskStatus.NO_BIT);
+        QueryWrapper<Task> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("task_status", TaskStatus.NO_BIT);
         // 如果分类 ID 为空查询，不为0按分类 ID 查询
         if (categoryId != 0) {
-            criteria.andEqualTo("categoryId", categoryId);
+            queryWrapper.eq("category_id", categoryId);
         }
         // 如果 key 不为 ""，按照搜索条件查询
         if (!"".equals(key)) {
             // 按照任务标题查询 或 按照任务简介模糊查询
-            example.and().orLike("taskTitle", '%' + key + '%').
-                    orLike("taskProfile", '%' + key + '%');
+            queryWrapper.and(wrapper -> wrapper.like("task_title", key).like("task_profile", key));
         }
 
         // 分页查询
-        PageInfo<Task> taskPageInfo = new PageInfo<>(taskMapper.selectByExample(example));
+        Page<Task> taskPageInfo = getBaseMapper().selectPage(taskPage, queryWrapper);
 
         // 获取查询结果
-        List<Task> tasks = taskPageInfo.getList();
+        List<Task> tasks = taskPageInfo.getRecords();
 
         // Task 转换为 TaskVo 视图展示类
         List<TaskVo> taskVos = tasksToTaskVos(tasks);
@@ -172,113 +152,94 @@ public class TaskServiceImpl implements TaskService {
         pageResult.setList(taskVos);
         // 数据总条数
         Long total = taskPageInfo.getTotal();
-        pageResult.setTotal(total.intValue());
+        pageResult.setTotal(total);
         // 总页数
-        int pageTotal = (total.intValue() + pageSize - 1) / pageSize;
+        Long pageTotal = (long) ((total.intValue() + pageSize - 1) / pageSize);
         pageResult.setPageTotal(pageTotal);
-
         return pageResult;
     }
 
     @Override
     public TaskVo getById(Long taskId) {
         // 根据主键查询
-        Task task = taskMapper.selectByPrimaryKey(taskId);
-
+        Task task = getById(taskId.toString());
         // 将 task 转换为 taskVo
         List<Task> tasks = new ArrayList<>();
         tasks.add(task);
         List<TaskVo> taskVos = tasksToTaskVos(tasks);
-
         // 因为只有一个，所以获取第一个
-        TaskVo taskVo = taskVos.get(0);
-        return taskVo;
+        return taskVos.get(0);
     }
 
     @Override
     public Integer getByBidEmployeeId(Long id) {
-        Example example = new Example(Task.class);
         // 根据雇员ID查询中标的总数，因为任务中有一个雇员ID字段，只有在中标之后才有有雇员信息
-        example.createCriteria().andEqualTo("employeeId", id);
-        List<Task> tasks = taskMapper.selectByExample(example);
-        return tasks != null ? tasks.size() : 0;
+        long count = count(new QueryWrapper<Task>().eq("employee_id", id));
+        return (int) count;
     }
 
     @Override
     public List<TaskVo> getCompletedByEmployeeId(Long id) {
         // 构造查询条件
-        Example example = new Example(Task.class);
+        QueryWrapper<Task> queryWrapper = new QueryWrapper<>();
         // 根据雇员 ID 和任务状态查询，任务状态为 2 代表已完成
-        example.createCriteria().andEqualTo("employeeId", id)
-                .andEqualTo("taskStatus", TaskStatus.COMPLETE);
-        List<Task> tasks = taskMapper.selectByExample(example);
-
+        queryWrapper.eq("employee_id", id).eq("task_status", TaskStatus.COMPLETE);
+        List<Task> tasks = list(queryWrapper);
         // 转换为视图展示对象
-        List<TaskVo> taskVos = tasksToTaskVos(tasks);
-
-        return taskVos;
+        return tasksToTaskVos(tasks);
     }
 
     @Override
     public List<TaskVo> getUnCompletedByEmployeeId(Long id) {
         // 构造查询条件
-        Example example = new Example(Task.class);
+        QueryWrapper<Task> queryWrapper = new QueryWrapper<>();
         // 根据雇员 ID 和任务状态查询，任务状态为 1 代表已中标，但未完成 或者 2 已提交，雇主还未确认
-        example.createCriteria().andEqualTo("employeeId", id);
-        example.and().orEqualTo("taskStatus", TaskStatus.BIT).orEqualTo("taskStatus", TaskStatus.SUBMIT);
-        List<Task> tasks = taskMapper.selectByExample(example);
-
+        queryWrapper.eq("employee_id", id)
+                .and(wrapper -> wrapper.eq("task_status", TaskStatus.BIT)
+                        .eq("task_status", TaskStatus.SUBMIT));
+        List<Task> tasks = list(queryWrapper);
         // 转换为视图展示对象
-        List<TaskVo> taskVos = tasksToTaskVos(tasks);
-
-        return taskVos;
+        return tasksToTaskVos(tasks);
     }
 
     @Override
-    public void bidTask(Long id, Long taskId) {
+    public void bidTask(@NotNull Long id, Long taskId) {
         // 根据任务主键 ID 获取任务
-        Task task = taskMapper.selectByPrimaryKey(taskId);
+        Task task = getById(taskId.toString());
         // 设置任务中标雇员
         task.setEmployeeId(id);
         // 设置任务状态
         task.setTaskStatus(TaskStatus.BIT);
         // 更新任务状态
-        taskMapper.updateByPrimaryKey(task);
+        updateById(task);
     }
 
     @Override
     public void submitTask(Long id, Long taskId) {
         // 根据任务主键 ID 获取任务
-        Task task = taskMapper.selectByPrimaryKey(taskId);
+        Task task = getById(taskId.toString());
         // 设置任务中标雇员
         task.setEmployeeId(id);
         // 设置任务状态
         task.setTaskStatus(TaskStatus.SUBMIT);
         // 更新任务状态
-        taskMapper.updateByPrimaryKey(task);
+        updateById(task);
     }
 
     @Override
     public List<TaskVo> getByEmployerId(Long id) {
-        Example example = new Example(Task.class);
-        example.createCriteria().andEqualTo("employerId", id);
-        List<Task> tasks = taskMapper.selectByExample(example);
-        List<TaskVo> taskVos = tasksToTaskVos(tasks);
-        return taskVos;
+        List<Task> tasks = list(new QueryWrapper<Task>().eq("employer_id", id));
+        return tasksToTaskVos(tasks);
     }
 
     @Override
     public Integer getBidCount(Long id) {
-        Example example = new Example(Task.class);
-        example.createCriteria().andEqualTo("employerId", id);
-        List<Task> tasks = taskMapper.selectByExample(example);
+        List<Task> tasks = list(new QueryWrapper<Task>().eq("employer_id", id));
         // 根据任务集合查询总投标数量
-        Integer bidCount = 0;
+        int bidCount = 0;
         for (Task task : tasks) {
-            Example example2 = new Example(Bid.class);
-            example2.createCriteria().andEqualTo("taskId", task.getId());
-            List<Bid> bids = bidMapper.selectByExample(example2);
-            bidCount += bids.size();
+            Long bids = bidMapper.selectCount(new QueryWrapper<Bid>().eq("task_id", task.getId()));
+            bidCount += bids.intValue();
         }
         return bidCount;
     }
@@ -286,22 +247,18 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public List<TaskVo> getRecentlySubmit(Long id) {
         // 先查询所有任务集合
-        Example example = new Example(Task.class);
-        example.createCriteria().andEqualTo("employerId", id)
-                .andEqualTo("taskStatus", TaskStatus.SUBMIT);
-        List<Task> tasks = taskMapper.selectByExample(example);
-        List<TaskVo> taskVos = tasksToTaskVos(tasks);
-        return taskVos;
+        List<Task> tasks = list(new QueryWrapper<Task>()
+                .eq("employer_id", id)
+                .eq("task_status", TaskStatus.SUBMIT));
+        return tasksToTaskVos(tasks);
     }
 
     @Override
     public List<TaskVo> getByEmployeeId(Long employeeId) {
-        Example example = new Example(Task.class);
-        example.createCriteria().andEqualTo("employeeId", employeeId)
-                .andEqualTo("taskStatus", TaskStatus.COMPLETE);
-        List<Task> tasks = taskMapper.selectByExample(example);
-        List<TaskVo> taskVos = tasksToTaskVos(tasks);
-        return taskVos;
+        List<Task> tasks = list(new QueryWrapper<Task>()
+                .eq("employee_id", employeeId)
+                .eq("task_status", TaskStatus.COMPLETE));
+        return tasksToTaskVos(tasks);
     }
 
     @Override
@@ -330,25 +287,22 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public List<TaskVo> getUnCheckAll() {
-        Example example = new Example(Task.class);
-        example.createCriteria().andEqualTo("taskStatus", TaskStatus.UNCHECK);
-        List<Task> tasks = taskMapper.selectByExample(example);
-        List<TaskVo> taskVos = tasksToTaskVos(tasks);
-        return taskVos;
+        List<Task> tasks = list(new QueryWrapper<Task>().eq("task_status", TaskStatus.UNCHECK));
+        return tasksToTaskVos(tasks);
     }
 
     @Override
     public void checkSuccess(Long taskId) {
-        Task task = taskMapper.selectByPrimaryKey(taskId);
+        Task task = getById(taskId.toString());
         task.setTaskStatus(TaskStatus.NO_BIT);
-        taskMapper.updateByPrimaryKey(task);
+        updateById(task);
     }
 
     @Override
     public void unCheckSuccess(Long taskId) {
-        Task task = taskMapper.selectByPrimaryKey(taskId);
+        Task task = getById(taskId.toString());
         task.setTaskStatus(TaskStatus.CHECK_FAIL);
-        taskMapper.updateByPrimaryKey(task);
+        updateById(task);
     }
 
     @Override
@@ -356,23 +310,23 @@ public class TaskServiceImpl implements TaskService {
         if (task.getTaskStatus().equals(TaskStatus.CHECK_FAIL)) {
             task.setTaskStatus(TaskStatus.UNCHECK);
         }
-        taskMapper.updateByPrimaryKeySelective(task);
+        updateById(task);
     }
 
     @Override
     public void deleteById(Long taskId) {
-        taskMapper.deleteByPrimaryKey(taskId);
+        removeById(taskId);
     }
 
     @Override
     public void successTask(Long taskId) {
         // 更新任务状态，变为已完成状态
-        Task task = taskMapper.selectByPrimaryKey(taskId);
+        Task task = getById(taskId.toString());
         // 设置完成时间
         task.setCloseTime(new Date());
         // 修改任务状态为完成
         task.setTaskStatus(TaskStatus.COMPLETE);
-        taskMapper.updateByPrimaryKey(task);
+        updateById(task);
     }
 
     /**
@@ -388,16 +342,16 @@ public class TaskServiceImpl implements TaskService {
             BeanUtils.copyProperties(task, taskVo);
 
             // 查询雇主信息
-            Employer employer = employerMapper.selectByPrimaryKey(task.getEmployerId());
+            Employer employer = employerMapper.selectById(task.getEmployerId());
             taskVo.setEmployer(employer);
 
             // 查询出任务分类
-            TaskCategory taskCategory = taskCategoryMapper.selectByPrimaryKey(task.getCategoryId());
+            TaskCategory taskCategory = taskCategoryMapper.selectById(task.getCategoryId());
             taskVo.setTaskCategory(taskCategory);
 
             // 查询出任务完成雇员信息
-            if (task.getTaskStatus() != TaskStatus.NO_BIT) {
-                Employee employee = employeeMapper.selectByPrimaryKey(task.getEmployeeId());
+            if (!Objects.equals(task.getTaskStatus(), TaskStatus.NO_BIT)) {
+                Employee employee = employeeMapper.selectById(task.getEmployeeId());
                 taskVo.setEmployee(employee);
             }
 
@@ -417,7 +371,7 @@ public class TaskServiceImpl implements TaskService {
             // 计算平均竞标价格
             // 总竞标价格
             Double totalPrice = 0.0;
-            Double avgPrice = 0.0;
+            double avgPrice = 0.0;
             if (bidVos.size() != 0) {
                 for (BidVo bidVo : bidVos) {
                     totalPrice += bidVo.getBidPrice();
@@ -432,10 +386,9 @@ public class TaskServiceImpl implements TaskService {
                 // 获取该任务中标雇员
                 Long employeeId = task.getEmployeeId();
                 // 查询任务中标信息，查询到期时间
-                Example example = new Example(Bid.class);
-                example.createCriteria().andEqualTo("employeeId", employeeId)
-                        .andEqualTo("taskId", task.getId());
-                Bid bid = bidMapper.selectOneByExample(example);
+                Bid bid = bidMapper.selectOne(new QueryWrapper<Bid>()
+                        .eq("employee_id", employeeId)
+                        .eq("task_id", task.getId()));
                 // 获取到期时间
                 Date expireTime = bid.getDeliveryTime();
                 taskVo.setExpireTime(expireTime);
@@ -454,17 +407,15 @@ public class TaskServiceImpl implements TaskService {
      * @return
      */
     private List<BidVo> findTaskBids(Task task) {
-        Example example = new Example(Bid.class);
         // 根据任务 ID，查询出所有竞标信息
-        example.createCriteria().andEqualTo("taskId", task.getId());
-        List<Bid> bids = bidMapper.selectByExample(example);
+        List<Bid> bids = bidMapper.selectList(new QueryWrapper<Bid>().eq("task_id", task.getId()));
         List<BidVo> bidVos = new ArrayList<>();
         for (Bid bid : bids) {
             BidVo bidVo = new BidVo();
             // 相同属性进行复制
             BeanUtils.copyProperties(bid, bidVo);
             // 根据投标雇员ID查询出雇员信息
-            Employee currEmployee = employeeMapper.selectByPrimaryKey(bid.getEmployeeId());
+            Employee currEmployee = employeeMapper.selectById(bid.getEmployeeId());
             bidVo.setEmployee(currEmployee);
             // 复制完值添加到集合中
             bidVos.add(bidVo);
@@ -479,11 +430,8 @@ public class TaskServiceImpl implements TaskService {
      * @return
      */
     private List<TaskSkill> findTaskSkills(Task task) {
-        Example example = new Example(TaskSkill.class);
-        example.createCriteria().andEqualTo("taskId", task.getId());
         // 查询出所有的任务与技能对应关系，再根据技能ID，查询出技能信息
-        List<TaskSkill> taskSkills = taskSkillMapper.selectByExample(example);
-        return taskSkills;
+        return taskSkillMapper.selectList(new QueryWrapper<TaskSkill>().eq("task_id", task.getId()));
     }
 
     /**

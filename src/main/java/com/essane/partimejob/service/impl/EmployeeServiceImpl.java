@@ -1,5 +1,8 @@
 package com.essane.partimejob.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.essane.partimejob.domain.Employee;
 import com.essane.partimejob.domain.EmployeeSkill;
 import com.essane.partimejob.domain.HomeBower;
@@ -9,11 +12,8 @@ import com.essane.partimejob.mapper.HomeBowerMapper;
 import com.essane.partimejob.service.EmployeeService;
 import com.essane.partimejob.utils.IDUtil;
 import com.essane.partimejob.vo.EmployeeVo;
-import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
-import tk.mybatis.mapper.entity.Example;
 
 import javax.annotation.Resource;
 import java.util.Date;
@@ -21,9 +21,11 @@ import java.util.List;
 
 /**
  * 雇员业务逻辑实现
+ *
+ * @author Essane
  */
 @Service
-public class EmployeeServiceImpl implements EmployeeService {
+public class EmployeeServiceImpl extends ServiceImpl<EmployeeMapper, Employee> implements EmployeeService {
 
     @Resource
     private EmployeeMapper employeeMapper;
@@ -36,40 +38,23 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
     public Integer getAllCount() {
-        List<Employee> employees = employeeMapper.selectAll();
+        List<Employee> employees = list();
         return employees != null ? employees.size() : 0;
     }
 
     @Override
     public List<Employee> getRecently() {
-        // 使用 PageHelper 分页查询
-        PageHelper.startPage(0, 10);
-
-        // 设置分页查询条件
-        Example example = new Example(Employee.class);
-        // 按照创建时间倒叙查询
-        example.orderBy("createTime").desc();
-        PageInfo<Employee> employeePageInfo = new PageInfo<>(employeeMapper.selectByExample(example));
-
-        // 获取查询结果
-        List<Employee> list = employeePageInfo.getList();
-
-        return list;
-    }
-
-    @Override
-    public List<Employee> getAll() {
-        return employeeMapper.selectAll();
+        QueryWrapper<Employee> queryWrapper = new QueryWrapper<>();
+        queryWrapper.orderByDesc("create_time");
+        return getBaseMapper().selectPage(new Page<>(0, 10), queryWrapper).getRecords();
     }
 
     @Override
     public Employee getByUsername(String username) {
         // 构造查询条件
-        Example example = new Example(Employee.class);
         // 按用户名查询
-        example.createCriteria().andEqualTo("username", username);
-        Employee employee = employeeMapper.selectOneByExample(example);
-        return employee;
+        QueryWrapper<Employee> queryWrapper = new QueryWrapper<Employee>().eq("username", username);
+        return getOne(queryWrapper);
     }
 
     @Override
@@ -97,7 +82,6 @@ public class EmployeeServiceImpl implements EmployeeService {
     public Employee login(String username, String password) {
         // 根据用户名获取用户信息
         Employee employee = getByUsername(username);
-
         // 验证密码是否正确,密码一致登录成功
         if (employee != null && employee.getPassword().equals(password)) {
             return employee;
@@ -110,56 +94,39 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     public Integer getBowerCount(Long employeeId) {
         // 根据雇员主键ID查询出雇员信息
-        Employee employee = employeeMapper.selectByPrimaryKey(employeeId);
+        Employee employee = getBaseMapper().selectById(employeeId);
         // 获取雇员主页浏览数量
-        Integer bowerCount = employee.getBrowseCount();
-        return bowerCount;
+        return employee.getBrowseCount();
     }
 
-    @Override
-    public Employee save(Employee employee) {
-        // 更新
-        employeeMapper.updateByPrimaryKeySelective(employee);
-
-        // 重新查询雇员信息
-        Employee currEmployee = employeeMapper.selectByPrimaryKey(employee.getId());
-        return currEmployee;
-    }
 
     @Override
     public String updatePass(Long employeeId, String password, String newPassword) {
         // 根据主键查询雇员ID信息
-        Employee employee = employeeMapper.selectByPrimaryKey(employeeId);
-
+        Employee employee = getById(employeeId);
         // 更新密码
         if (employee != null && employee.getPassword().equals(password)) {
             employee.setPassword(newPassword);
-            employeeMapper.updateByPrimaryKey(employee);
+            updateById(employee);
             return "修改密码成功";
-
-        }
-
-        // 旧密码错误
-        else {
+        } else {
+            // 旧密码错误
             return "旧密码输入错误";
         }
     }
 
     @Override
-    public EmployeeVo getById(Long employeeId) {
+    public EmployeeVo getVoById(Long employeeId) {
         // 查询雇员信息
-        Employee employee = employeeMapper.selectByPrimaryKey(employeeId);
-
+        Employee employee = getById(employeeId);
         // 查询雇员技能信息
-        Example example = new Example(EmployeeSkill.class);
-        example.createCriteria().andEqualTo("employeeId", employee.getId());
-
+        QueryWrapper<EmployeeSkill> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("employee_id", employee.getId());
         // 转换为视图展示对象
         EmployeeVo employeeVo = new EmployeeVo();
         BeanUtils.copyProperties(employee, employeeVo);
-
         // 查询出雇员所有技能
-        List<EmployeeSkill> employeeSkills = employeeSkillMapper.selectByExample(example);
+        List<EmployeeSkill> employeeSkills = employeeSkillMapper.selectList(queryWrapper);
         employeeVo.setSkills(employeeSkills);
         return employeeVo;
     }
@@ -176,7 +143,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
     public void deleteSkill(Long skillId) {
-        employeeSkillMapper.deleteByPrimaryKey(skillId);
+        employeeSkillMapper.deleteById(skillId);
     }
 
     @Override
@@ -188,12 +155,11 @@ public class EmployeeServiceImpl implements EmployeeService {
         homeBower.setEmployerId(employerId);
         homeBower.setCreateTime(new Date());
         homeBowerMapper.insert(homeBower);
-
         // 雇员主页访问次数 + 1
-        Employee employee = employeeMapper.selectByPrimaryKey(employeeId);
+        Employee employee = getById(employeeId);
         Integer bowerCount = employee.getBrowseCount() + 1;
         employee.setBrowseCount(bowerCount);
-        employeeMapper.updateByPrimaryKey(employee);
+        updateById(employee);
     }
 }
 

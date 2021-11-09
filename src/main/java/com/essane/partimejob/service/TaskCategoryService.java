@@ -1,5 +1,6 @@
 package com.essane.partimejob.service;
 
+import com.baomidou.mybatisplus.extension.service.IService;
 import com.essane.partimejob.domain.TaskCategory;
 import com.essane.partimejob.vo.TaskCategoryVo;
 
@@ -7,8 +8,10 @@ import java.util.List;
 
 /**
  * 任务分类业务逻辑接口
+ *
+ * @author Essane
  */
-public interface TaskCategoryService {
+public interface TaskCategoryService extends IService<TaskCategory> {
 
     /**
      * 查询所有任务分类
@@ -18,19 +21,10 @@ public interface TaskCategoryService {
     List<TaskCategoryVo> getAll();
 
     /**
-     * 查询任务分类信息
-     *
-     * @param id 分类 ID
-     * @return
-     */
-    TaskCategory getById(Long id);
-
-    /**
-     * 保存任务分类信息
-     *
+     * 保存任务分类
      * @param taskCategory
      */
-    void save(TaskCategory taskCategory);
+    void saveTaskCategory(TaskCategory taskCategory);
 
     /**
      * 设为热门
@@ -45,13 +39,6 @@ public interface TaskCategoryService {
      * @param id
      */
     void closePopular(Long id);
-
-    /**
-     * 删除任务分类
-     *
-     * @param id
-     */
-    void delete(Long id);
 
     /**
      * 查询热门分类

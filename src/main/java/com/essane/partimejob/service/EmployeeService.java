@@ -1,5 +1,6 @@
 package com.essane.partimejob.service;
 
+import com.baomidou.mybatisplus.extension.service.IService;
 import com.essane.partimejob.domain.Employee;
 import com.essane.partimejob.vo.EmployeeVo;
 
@@ -7,8 +8,10 @@ import java.util.List;
 
 /**
  * 雇员业务逻辑接口
+ *
+ * @author Essane
  */
-public interface EmployeeService {
+public interface EmployeeService extends IService<Employee> {
 
     /**
      * 查询雇员总数
@@ -24,12 +27,6 @@ public interface EmployeeService {
      */
     List<Employee> getRecently();
 
-    /**
-     * 查询所有雇员信息
-     *
-     * @return
-     */
-    List<Employee> getAll();
 
     /**
      * 根据用户名获取雇员信息
@@ -65,14 +62,6 @@ public interface EmployeeService {
     Integer getBowerCount(Long employeeId);
 
     /**
-     * 保存个人信息
-     *
-     * @param employee
-     * @return
-     */
-    Employee save(Employee employee);
-
-    /**
      * 修改密码
      *
      * @param password
@@ -87,7 +76,7 @@ public interface EmployeeService {
      * @param employeeId
      * @return
      */
-    EmployeeVo getById(Long employeeId);
+    EmployeeVo getVoById(Long employeeId);
 
     /**
      * 添加技能

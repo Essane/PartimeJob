@@ -11,7 +11,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 /**
  * 注册拦截器配置
  *
- * @author by yuu
+ * @author by Essane
  * @Classname WebApplicationConfig
  * @Date 2019/10/14 12:17
  * @see com.essane.partimejob.config
